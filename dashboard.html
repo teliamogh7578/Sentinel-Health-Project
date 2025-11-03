@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dashboard - Health Sentinel</title>
+    <style>
+/* === BODY & GENERAL TEXT === */
+/* Logo and title container */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between logo and title */
+}
+
+/* Logo image */
+.logo {
+    width: 40px;       /* Adjust size as needed */
+    height: 40px;
+    object-fit: contain; /* Keep aspect ratio */
+}
+
+body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #fff8f0; /* Soft cream background */
+    color: #1e1e2f; /* Dark text for readability */
+    margin: 0;
+    padding: 0;
+}
+
+/* === NAVIGATION BAR === */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ffffff; /* White navbar */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-bottom: 2px solid #f0e6de; /* Light cream border */
+}
+
+nav h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #b71c1c; /* Dark red for title */
+}
+
+nav button {
+    background-color: #d32f2f; /* Red button */
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+nav button:hover {
+    background-color: #b71c1c; /* Darker red on hover */
+}
+
+/* === MAIN CONTAINER === */
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #ffffff; /* White card for contrast */
+    border-radius: 15px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Headings */
+h2 {
+    color: #b71c1c; /* Dark red for main section headings */
+    margin-bottom: 0.5rem;
+}
+
+h3 {
+    color: #d32f2f; /* Slightly brighter red for subsection headings */
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+p {
+    color: #555555; /* Gray for body text */
+}
+
+/* === FORM INPUTS === */
+.survey-form div {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.survey-form label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.survey-form input,
+.survey-form select {
+    padding: 0.8rem;
+    border: 1px solid #e0e0e0; /* Light gray border */
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #fffaf5; /* Slight off-white input for cream feel */
+    color: #1e1e2f; /* Input text color */
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.survey-form input:focus,
+.survey-form select:focus {
+    outline: none;
+    border-color: #d32f2f; /* Red focus */
+    box-shadow: 0 0 5px rgba(211, 47, 47, 0.3);
+}
+
+/* === SUBMIT BUTTON === */
+#submit-btn {
+    padding: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    background-color: #d32f2f; /* Red button */
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 1rem;
+    transition: background 0.3s;
+}
+
+#submit-btn:hover {
+    background-color: #b71c1c; /* Darker red on hover */
+}
+
+/* === LOADING & RESULTS === */
+#loading, #results-container {
+    display: none;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+#results-container h2 {
+    font-size: 1.6rem;
+    color: #b71c1c;
+}
+
+#results-container h3 {
+    font-size: 1.4rem;
+    color: #d32f2f; /* Risk level in red */
+}
+
+#results-container p {
+    font-size: 1rem;
+    color: #333333;
+}
+
+/* === SUBTLE ACCENTS FOR BETTER UX === */
+/*h2::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 3px;
+    background-color: #d32f2f;
+    margin-top: 5px;
+    border-radius: 2px;
+}*/
+
+.survey-form select option {
+    color: #1e1e2f; /* Keep dropdown text dark */
+}
+</style>
+</head>
+<body>
+
+    <nav>
+        <h1>Sentinel Health Dashboard</h1>
+        <button id="logout-btn">Logout</button>
+    </nav>
+<!-- Agreement Modal -->
+<div id="agreement-modal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background-color: #fff; padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; text-align: center;">
+        <h2>Welcome to Sentinel Health</h2>
+         <p>
+        By using this app, you agree to our Privacy Policy and Terms of Use. We collect and store only essential data 
+        to improve your health experience. All health data is confidential, encrypted, and used solely for analysis and 
+        recommendations.
+      </p>
+      <p>
+        You must accept these terms before using the Sentinel Health services, including wellness surveys, health 
+        diagnostics, and early screening features.
+      </p>
+      <p>
+        For more details, contact our privacy officer or visit our website.
+      </p>
+        <button id="agree-btn" style="padding: 1rem 2rem; background-color: #d32f2f; color: white; border:none; border-radius: 8px; font-weight: bold; cursor:pointer;">Agree & Continue</button>
+    </div>
+</div>
+<end>
+    <div class="container">
+        <h2>Wellness & Symptom Screener</h2>
+        <p>Please answer the following based on your experiences in the last 30 days. (1 = Never, 5 = Constantly)</p>
+
+        <form id="survey-form" class="survey-form">
+            <!-- Section 1: General Well-being -->
+            <h3>Your Personal Information</h3>
+            <div>
+                <label for="user_age">Your Age (e.g., 25)</label>
+                <input type="number" id="user_age" required style="padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;">
+            </div>
+            <div>
+                <label for="user_gender">Your Gender</label>
+                <select id="user_gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        
+            <h3>Section 1: General Well-being</h3>
+            <div>
+                <label for="q_fatigue">Felt unusually tired, fatigued, or lacking energy.</label>
+                <select id="q_fatigue">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_fever">Experienced an unexplained fever, chills, or night sweats.</label>
+                <select id="q_fever">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_appetite">A significant change in your appetite.</label>
+                <select id="q_appetite">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_weight">Unexplained weight loss or weight gain.</label>
+                <select id="q_weight">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+
+            <!-- Section 2: Pain & Discomfort -->
+            <h3>Section 2: Pain & Discomfort</h3>
+            <div>
+                <label for="q_headaches_general">General, dull, aching headaches.</label>
+                <select id="q_headaches_general">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_headaches_severe">Severe, throbbing headaches (Migraine).</label>
+                <select id="q_headaches_severe">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_body_aches">Aches in your muscles, or pain/stiffness in joints.</label>
+                <select id="q_body_aches">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_abdominal_pain">Sharp or cramping pain in your abdomen.</label>
+                <select id="q_abdominal_pain">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_chest_discomfort">Chest pain, tightness, or a burning sensation.</label>
+                <select id="q_chest_discomfort">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+
+            <!-- Section 3: Respiratory & Head -->
+            <h3>Section 3: Respiratory & Head</h3>
+            <div>
+                <label for="q_cough">A persistent cough.</label>
+                <select id="q_cough">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_sore_throat">A sore throat or pain when swallowing.</label>
+                <select id="q_sore_throat">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_nasal_issues">A runny or congested (stuffy) nose.</label>
+                <select id="q_nasal_issues">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_breathing_difficulty">Shortness of breath or wheezing.</label>
+                <select id="q_breathing_difficulty">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+
+            <!-- Section 4: Digestive & Urinary -->
+            <h3>Section 4: Digestive & Urinary</h3>
+            <div>
+                <label for="q_nausea">Feeling nauseous or have had episodes of vomiting.</label>
+                <select id="q_nausea">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_bowel_diarrhea">Diarrhea, loose stools, or watery stools.</label>
+                <select id="q_bowel_diarrhea">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_indigestion">Bloating, excessive gas, or acid reflux.</label>
+                <select id="q_indigestion">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_urinary_frequency">A frequent or urgent need to urinate.</label>
+                <select id="q_urinary_frequency">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_urinary_pain">A painful or burning sensation during urination.</label>
+                <select id="q_urinary_pain">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+
+            <!-- Section 5: Skin & Senses -->
+            <h3>Section 5: Skin & Senses</h3>
+            <div>
+                <label for="q_skin_issues">Unexplained skin rash, persistent itching, or scaly skin.</label>
+                <select id="q_skin_issues">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_vision_issues">Blurry vision, eye strain, or red, itchy eyes.</label>
+                <select id="q_vision_issues">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_dizziness">Feeling dizzy, lightheaded, or weak.</label>
+                <select id="q_dizziness">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+
+            <!-- Section 6: Mental & Sleep -->
+            <h3>Section 6: Mental & Sleep</h3>
+            <div>
+                <label for="q_sleep_disruption">Trouble falling/staying asleep, or waking unrested.</label>
+                <select id="q_sleep_disruption">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_low_mood">Felt persistently sad, down, or lost interest in activities.</label>
+                <select id="q_low_mood">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_anxiety">Felt excessive worry, anxiety, or restlessness.</label>
+                <select id="q_anxiety">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="q_cognitive_issues">Difficulty concentrating, felt "foggy," or been more irritable.</label>
+                <select id="q_cognitive_issues">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submit-btn">Submit for Analysis</button>
+        </form>
+
+        <div id="loading">
+            <p>Analyzing your results...</p>
+        </div>
+
+        <div id="results-container">
+            <h2>Your Sentinel Health Analysis</h2>
+            <h3 id="risk-level"></h3>
+            <p id="recommendation"></p>
+        </div>  
+        <div id="results-container">
+            <h2>Your Sentinel Health Analysis</h2>
+            <h3 id="risk-level"></h3>
+            <p id="recommendation"></p>
+        </div>
+        
+        <div id="clinics-section" style="display: none; margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1.5rem;">
+            <h3>Need In-Person Care?</h3>
+            <p>Based on your results, we recommend seeing a professional. You can find a clinic near you.</p>
+            <button id="find-clinics-btn" style="padding: 0.9rem; border: none; border-radius: 6px; background-color: #28a745; color: white; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%;">
+                Find Nearby Clinics (Requires Location)
+            </button>
+            <div id="clinics-list" style="margin-top: 1.5rem;">
+                </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="dashboard.js"></script>
+
+</body>
+</html>
