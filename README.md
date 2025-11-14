@@ -1,73 +1,90 @@
 # Health-Project-Sentinel
-Health Sentinel: An AI-Powered Wellness & Symptom Screener
+Health Sentinel — Symptom-Based Wellness Screener
 
-Health Sentinel is a web application (built for the CacheMoney hackathon) that moves beyond simple symptom checklists. It provides users with a comprehensive, AI-powered analysis of their self-reported health data.
+Health Sentinel is a full-stack wellness screener built for a Hackathon.
+It helps users understand potential health concerns by comparing their self-reported symptoms with a structured symptoms database and returning the closest matching health profile.
 
-Instead of just storing data, this app acts as an intelligent "first opinion" by securely sending a user's symptom profile to a generative AI (Google's Gemini) for real-time analysis. The user receives an easy-to-understand breakdown of potential health risks, key concern areas, and actionable recommendations.
+This provides a simple, first-opinion style interpretation of symptoms.
+The system relies on pattern matching, weighted scoring, and database comparisons to determine the most relevant result.
 
-🚀 Key Features
-Secure Authentication: Users can create an account and log in using Firebase Authentication.
-Single-Page Application (SPA): A clean, loop-free user experience. The app uses JavaScript to show/hide the login and dashboard sections without ever needing to reload the page.
-Comprehensive Screener: A 25-question, multi-page survey covering general wellness, pain, respiratory, digestive, and mental health.
-Real-Time AI Analysis: The core of the project. User answers are sent to a Python backend, which prompts the Google Gemini API to generate a unique, holistic analysis.
-Dynamic Dashboard: The user's dashboard listens directly to the Firestore database and displays the AI's analysis (Risk Level, Key Concerns, Recommendation) the moment it's ready.
+  Note:
+Parts of the project (UI scaffolding, boilerplate code) were developed with assistance from AI tools.
+All system logic, data structuring, symptom-matching rules, debugging, and integration work were manually implemented by the team.
 
+  Key Features:
+Secure Authentication — Firebase signup/login.
+Single-Page Architecture — No reloads; dynamic content switching using vanilla JS.
+25-Question Comprehensive Screener — General wellness, pain, digestion, sleep, mental health, etc.
+Pattern-Matching Engine — Matches user responses with a symptom database to find the most probable health category.
+Dynamic Realtime Dashboard — Firestore onSnapshot pushes updates immediately.
+Fully Decoupled Design — Frontend + backend microservice architecture.
 
-🛠️ Tech Stack
+  Tech Stack:
+Frontend:
+HTML, CSS, JavaScript
+Firebase Authentication
+Firestore (Realtime Database)
+Backend
+Python (Flask microservice)
+Firestore Admin SDK
+Custom similarity / matching logic (no AI, no ML)
 
-This project is built with a modern, decoupled architecture.
-Frontend: HTML, CSS, and vanilla JavaScript (as a Single-Page Application).
-Authentication: Firebase Authentication (for user sign-up and login).
-Database: Firebase Firestore (a NoSQL database to store user roles and the final AI-generated results).
-Backend: Python (Flask) deployed as a separate microservice (e.g., on Render).
-AI: Google Gemini Pro (via the google-generativeai Python library).
+  How It Works:
+User logs in → Firebase verifies account.
+User completes the 25-question survey.
+Frontend sends user responses + UID to the backend.
 
-⚙️ How It Works (Data Flow)
+  Backend performs:
+symptom keyword scoring
+weighted similarity matching
+comparison against a predefined health-condition database
+The backend identifies the closest match and writes the result to Firestore.
+The frontend listens using onSnapshot() and instantly displays the matched profile.
 
-The separation of frontend and backend allows for a secure and scalable design.
-Login: User signs in on the frontend. Firebase Auth verifies them. onAuthStateChanged in app.js hides the login UI and shows the dashboard UI.
-Submit: The user fills out the 25-question survey. On submit, the frontend app.js gathers all 25 answers into a JSON object.
-Send to Backend: The frontend fetches the Python (Flask) backend API, securely sending the user's ID and their answers.
-Prompt AI: The Python server receives the JSON, formats it into a detailed prompt, and sends it to the Google Gemini API.
-Get Response: The Gemini API returns a JSON object with the analysis (e.g., { "risk": "Medium", "concerns": ["Digestive", "Sleep"], "recommendation": "..." }).
-Save to DB: The Python server saves this AI response to the results collection in Firestore, using the user's ID as the document name.
-Display Result: The frontend app.js, which has an active onSnapshot listener on that exact document, gets the new data instantly. It hides the "loading" spinner and displays the AI's analysis to the user.
-
-📦 How to Run This Project Locally
-
-This project has two parts that must be run separately.
-1. Backend Server (Python)
-Navigate to the /backend folder.
-Create and activate a virtual environment:
+  Running the Project Locally:
+Backend Setup
+cd backend
 python -m venv venv
-.\venv\Scripts\activate
-
-
-Install dependencies:
+.\venv\Scripts\activate  (Windows)
+source venv/bin/activate (Mac/Linux)
 pip install -r requirements.txt
-
-
-Add Service Account Key: Download your service-account-key.json file from your Firebase project settings and place it in this /backend folder.
-Set Environment Variables: You must set your Gemini API key in your terminal.
-Windows (CMD): set GEMINI_API_KEY=YOUR_API_KEY
-Windows (PowerShell): $env:GEMINI_API_KEY="YOUR_API_KEY"
-Mac/Linux: export GEMINI_API_KEY="YOUR_API_KEY"
-Run the Flask server:
+Add your service-account-key.json to /backend.
+Start the backend:
 python app.py
+Frontend Setup
+Paste Firebase config into index.html
+Update backend URL in app.js:
+const BACKEND_URL = "http://127.0.0.1:5000/submit";
+Run using VS Code Live Server.
 
+  **What I Learned While Working On This Project:**
+Working on Health Sentinel helped me build experience in full-stack development and real-world deployment.
+Key takeaways:
+1.Frontend Development:
+Building a Single-Page Application (SPA) using only vanilla JavaScript
+Managing UI state changes without reloads.
+Integrating Firebase Authentication into a custom UI.
+2.Backend Development:
+Creating a Python Flask microservice.
+Handling JSON payloads from the frontend.
+Implementing custom pattern-matching / similarity scoring without AI or ML models.
+3.Database & Integration:
+Using Firebase Firestore (both client-side and admin SDK).
+Handling realtime updates with onSnapshot().
+Securely mapping user IDs to their results.
+4.Architecture & Deployment:
+Structuring a decoupled frontend–backend system.
+Working with environment variables and credentials.
+Understanding how to deploy and test microservices.
 
-(The server will be running at http://127.0.0.1:5000)
+  Teamwork & Hackathon Skills:
+Rapid prototyping within time constraints.
+Debugging AI-generated boilerplate and making it production-ready.
+Writing prompts and instructions clearly when using AI tools.
 
-2. Frontend (HTML/JS)
-Add Firebase Config: Open index.html and paste your firebaseConfig object (from your Firebase project settings) into the script tag at the bottom.
-Update JS: Open app.js and change the RENDER_BACKEND_URL variable to your local backend address:
-const RENDER_BACKEND_URL = "[http://127.0.0.1:5000/submit](http://127.0.0.1:5000/submit)";
-
-
-Run the Frontend: The easiest way is with the VS Code Live Server extension.
-
-Right-click index.html and select "Open with Live Server".
-
-This will open your app in a browser (e.g., at http://127.0.0.1:5500).
-
-You can now sign up, log in, and use the full application.
+  AI Assistance Disclosure:
+This project was created during a short hackathon timeframe and involved significant assistance from AI coding tools for:
+generating boilerplate HTML/CSS/JS
+initial Flask route scaffolding
+prompt formatting suggestions
+**All architectural decisions, debugging, Firebase integration, API usage, and deployment steps were manually designed and executed by the team.**
